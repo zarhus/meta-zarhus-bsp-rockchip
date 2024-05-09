@@ -17,3 +17,5 @@ SRC_URI:append = " \
   file://enable-debug-stackoverflow.cfg \
   file://enable-stackprotector.cfg \
 "
+
+COMPATIBLE_MACHINE:zarhus-machine = "zarhus-machine"
