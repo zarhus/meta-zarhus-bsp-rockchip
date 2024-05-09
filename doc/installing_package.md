@@ -78,7 +78,7 @@ meta-hdl:
 URL is a link to clone git repository and refspec is a git revision. When
 choosing which one to use it is best to check if repository has branches named
 as Yocto releases. If it true, we should take top commit from the one matching
-our release - `nanbield` branch in this case. If the repository does not
+our release - `master` branch in this case. If the repository does not
 provide such branches, we should use top commit from `master` branch.
 
 ### Add package to the image

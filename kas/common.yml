@@ -9,7 +9,7 @@ repos:
 
   poky:
     url: https://git.yoctoproject.org/git/poky
-    refspec: 7b8aa378d069ee31373f22caba3bd7fc7863f447
+    refspec: 9867b9e7a6c5d4944f0ad92372efdff914d4b2b1
     layers:
       meta:
       meta-poky:
@@ -17,7 +17,7 @@ repos:
 
   meta-openembedded:
     url: https://git.openembedded.org/meta-openembedded
-    refspec: da9063bdfbe130f424ba487f167da68e0ce90e7d
+    refspec: 5778e32eae201072c5dc37c9db67dc1848ffb9de
     layers:
       meta-oe:
       meta-networking:
@@ -25,7 +25,7 @@ repos:
 
   meta-rockchip:
     url: https://git.yoctoproject.org/git/meta-rockchip
-    refspec: 2fbada46052c9195687ec994050a35a7cad55e24
+    refspec: 88f2064ca2b83b42a7c8a59616ab80b763ef2485
 
 bblayers_conf_header:
   standard: |
