@@ -1,0 +1,280 @@
+--- chkrootkit-0.54/chkrootkit	2020-12-20 06:32:29.000000000 +0100
++++ chkrootkit.sh	2021-03-12 11:21:50.336525371 +0100
+@@ -2,7 +2,7 @@
+ # -*- Shell-script -*-
+ 
+ # $Id: chkrootkit, v 0.54 2020/12/24
+-CHKROOTKIT_VERSION='0.54' 
++CHKROOTKIT_VERSION='0.54'
+ 
+ # Authors: Nelson Murilo <nelson@pangeia.com.br> (main author) and
+ #          Klaus Steding-Jessen <jessen@cert.br>
+@@ -22,8 +22,8 @@
+ _POSIX2_VERSION=199209
+ export _POSIX2_VERSION
+ 
+-KALLSYMS="/proc/kallsyms" 
+-[ -f /proc/ksysm ] && KALLSYMS="/proc/$KALLSYMS" 
++KALLSYMS="/proc/kallsyms"
++[ -f /proc/ksysm ] && KALLSYMS="/proc/$KALLSYMS"
+ 
+ # Native commands
+ TROJAN="amd basename biff chfn chsh cron crontab date du dirname echo egrep \
+@@ -35,6 +35,9 @@
+ # Tools
+ TOOLS="aliens asp bindshell lkm rexedcs sniffer w55808 wted scalper slapper z2 chkutmp OSX_RSPLUG"
+ 
++# Tools paths
++TOOLS_PATH="/usr/lib/chkrootkit/"
++
+ # Return Codes
+ INFECTED=0
+ NOT_INFECTED=1
+@@ -69,9 +72,9 @@
+ }
+ 
+ OSX_RSPLUG (){
+-       if [ ${SYSTEM} != "Darwin" ]; then 
++       if [ ${SYSTEM} != "Darwin" ]; then
+         if [ "${QUIET}" != "t" ]; then echo "not tested"; fi
+-          return 
++          return
+        fi
+        SAVEIFS=$IFS
+        IFS=';'
+@@ -103,9 +106,9 @@
+    SLAPPER_FILES="$SLAPPER_FILES ${ROOTDIR}tmp/.unlock ${ROOTDIR}tmp/httpd \
+    ${ROOTDIR}tmp/update ${ROOTDIR}tmp/.cinik ${ROOTDIR}tmp/.b"
+    SLAPPER_PORT="0.0:2002 |0.0:4156 |0.0:1978 |0.0:1812 |0.0:2015 "
+-   _chk_netstat_or_ss; 
+-   OPT="-an" 
+-   [ "${netstat}" = "ss" ] && OPT="-a" 
++   _chk_netstat_or_ss;
++   OPT="-an"
++   [ "${netstat}" = "ss" ] && OPT="-a"
+    STATUS=0
+    file_port=
+ 
+@@ -193,31 +196,35 @@
+     fi
+ 
+     if [ "${EXPERT}" = "t" ]; then
+-        expertmode_output "./ifpromisc" -v
++        expertmode_output "ifpromisc" -v
+         return 5
+     fi
+-    if [ ! -x ./ifpromisc ]; then
+-      echo "not tested: can't exec ./ifpromisc"
++    if [ ! -x ${TOOLS_PATH}/ifpromisc ]; then
++      echo "not tested: can't exec ifpromisc"
+       return ${NOT_TESTED}
+     else
+-      [ "${QUIET}" != "t" ] && ./ifpromisc -v || ./ifpromisc -q
++      [ "${QUIET}" != "t" ] && ${TOOLS_PATH}/ifpromisc -v || ${TOOLS_PATH}/ifpromisc -q
+     fi
+ }
+ 
+ chkutmp() {
+-    if [ ! -x ./chkutmp -o ${mode} = "pm" ]; then
+-      echo "not tested: can't exec ./chkutmp"
++    if [ ! -x ${TOOLS_PATH}/chkutmp -o ${mode} = "pm" ]; then
++      echo "not tested: can't exec chkutmp"
+       return ${NOT_TESTED}
+     fi
+-    if ./chkutmp
+-    then
+-      if [ "${QUIET}" != "t" ]; then echo "chkutmp: nothing deleted"; fi
++    if [ "${QUIET}" == "t" ]; then
++      ${TOOLS_PATH}/chkutmp > /dev/null 2>&1
++    else
++      if ${TOOLS_PATH}/chkutmp
++      then
++         echo "chkutmp: nothing deleted"
++      fi
+     fi
+ }
+ 
+ z2 () {
+-    if [ ! -x ./chklastlog ]; then
+-      echo "not tested: can't exec ./chklastlog"
++    if [ ! -x ${TOOLS_PATH}/chklastlog ]; then
++      echo "not tested: can't exec chklastlog"
+       return ${NOT_TESTED}
+     fi
+ 
+@@ -230,32 +237,32 @@
+     fi
+ 
+     if [ "${EXPERT}" = "t" ]; then
+-        expertmode_output "./chklastlog -f ${ROOTDIR}${WTMP} -l ${ROOTDIR}${LASTLOG}"
++        expertmode_output "${TOOLS_PATH}/chklastlog -f ${ROOTDIR}${WTMP} -l ${ROOTDIR}${LASTLOG}"
+         return 5
+     fi
+ 
+-    if ./chklastlog -f ${ROOTDIR}${WTMP} -l ${ROOTDIR}${LASTLOG}
++    if ${TOOLS_PATH}/chklastlog -f ${ROOTDIR}${WTMP} -l ${ROOTDIR}${LASTLOG}
+     then
+       if [ "${QUIET}" != "t" ]; then echo "chklastlog: nothing deleted"; fi
+     fi
+ }
+ 
+ wted () {
+-    if [ ! -x ./chkwtmp ]; then
+-      echo "not tested: can't exec ./chkwtmp"
++    if [ ! -x ${TOOLS_PATH}/chkwtmp ]; then
++      echo "not tested: can't exec chkwtmp"
+       return ${NOT_TESTED}
+     fi
+ 
+    if [ "$SYSTEM" = "SunOS" ]; then
+-       if [ ! -x ./check_wtmpx ]; then
+-          echo "not tested: can't exec ./check_wtmpx"
++       if [ ! -x ${TOOLS_PATH}/check_wtmpx ]; then
++          echo "not tested: can't exec check_wtmpx"
+        else
+           if [ "${EXPERT}" = "t" ]; then
+-             expertmode_output "./check_wtmpx"
++             expertmode_output "check_wtmpx"
+               return 5
+           fi
+ 	  if [ -f ${ROOTDIR}var/adm/wtmp ]; then
+-             if ./check_wtmpx
++             if ${TOOLS_PATH}/check_wtmpx
+                 then
+                 if [ "${QUIET}" != "t" ]; then \
+                    echo "check_wtmpx: nothing deleted in /var/adm/wtmpx"; fi
+@@ -266,21 +273,21 @@
+        WTMP=`loc wtmp wtmp "${ROOTDIR}var/log ${ROOTDIR}var/adm"`
+ 
+        if [ "${EXPERT}" = "t" ]; then
+-          expertmode_output "./chkwtmp -f ${WTMP}"
++          expertmode_output "${TOOLS_PATH}/chkwtmp -f ${WTMP}"
+           return 5
+        fi
+     fi
+ 
+-    if ./chkwtmp -f ${WTMP}
++    if ${TOOLS_PATH}/chkwtmp -f ${WTMP}
+     then
+       if [ "${QUIET}" != "t" ]; then echo "chkwtmp: nothing deleted"; fi
+     fi
+ }
+ bindshell () {
+ PORT="114|145|465|511|600|1008|1524|1999|1978|2881|3049|3133|3879|4000|4369|5190|5665|6667|10008|12321|23132|27374|29364|30999|31336|31337|37998|45454|47017|47889|60001|7222"
+-   OPT="-an" 
+-   _chk_netstat_or_ss; 
+-   [ "$netstat" = "ss" ] && OPT="-a"  
++   OPT="-an"
++   _chk_netstat_or_ss;
++   [ "$netstat" = "ss" ] && OPT="-a"
+    PI=""
+    if [ "${ROOTDIR}" != "/" ]; then
+      echo "not tested"
+@@ -311,8 +318,8 @@
+     prog=""
+     if [  \( "${SYSTEM}" = "Linux"  -o \( "${SYSTEM}" = "FreeBSD" -a \
+        `echo ${V} | ${awk} '{ if ($1 > 4.3 || $1 < 6.0) print 1; else print 0 }'` -eq 1 \) \) -a "${ROOTDIR}" = "/" ]; then
+-       [  -x ./chkproc -a "`find /proc 2>/dev/null| wc -l`" -gt 1 ] && prog="./chkproc"
+-      [  -x ./chkdirs ] && prog="$prog ./chkdirs"
++       [  -x ${TOOLS_PATH}/chkproc -a "`find /proc 2>/dev/null| wc -l`" -gt 1 ] && prog="${TOOLS_PATH}/chkproc"
++      [  -x ${TOOLS_PATH}/chkdirs ] && prog="$prog ${TOOLS_PATH}/chkdirs"
+       if [ "$prog" = "" -o ${mode} = "pm" ]; then
+          echo "not tested: can't exec $prog"
+          return ${NOT_TESTED}
+@@ -324,7 +331,7 @@
+          PV=`$ps -V 2>/dev/null| $cut -d " " -f 3 |${awk} -F . '{ print $1 "." $2 $3 }' | ${awk} '{ if ($0 > 3.19) print 3; else if ($0 < 2.015) print 1; else print 2 }'`
+          [ "$PV" = "" ] &&  PV=2
+          [ "${SYSTEM}" = "SunOS" ] && PV=0
+-         expertmode_output "./chkproc -v -v -p $PV"
++         expertmode_output "${TOOLS_PATH}/chkproc -v -v -p $PV"
+          return 5
+       fi
+ 
+@@ -352,7 +359,7 @@
+       if [ "${DEBUG}" = "t" ]; then
+            ${echo} "*** PV=$PV ***"
+       fi
+-      if ./chkproc -p ${PV}; then
++      if ${TOOLS_PATH}/chkproc -p ${PV}; then
+          if [ "${QUIET}" != "t" ]; then echo "chkproc: nothing detected"; fi
+       else
+          echo "chkproc: Warning: Possible LKM Trojan installed"
+@@ -361,9 +368,9 @@
+       for i in /usr/share /usr/bin /usr/sbin /lib; do
+          if [ "$(ls -ld $i | cut -d " " -f 2)" -gt "1" ]; then 
+             [ -d $i ] && dirs="$dirs $i"
+-         fi 
++         fi
+       done
+-      if ./chkdirs $dirs;  then
++      if ${TOOLS_PATH}/chkdirs $dirs;  then
+          if [ "${QUIET}" != "t" ]; then echo "chkdirs: nothing detected"; fi
+       else
+ 	    echo "chkdirs: Warning: Possible LKM Trojan installed"
+@@ -794,9 +801,11 @@
+       then
+       if [ "${QUIET}" != "t" ]; then echo "nothing found"; fi
+    else
+-      echo
+-      echo ${files}
+-      echo ${dirs}
++      if [ "${QUIET}" != "t" ]; then
++         echo
++         echo ${files}
++         echo ${dirs}
++      fi
+    fi
+ 
+    ### LPD Worm
+@@ -1921,18 +1930,18 @@
+ 
+    if [ "${SYSTEM}" = "Linux" ]
+    then
+-      if [ ! -x ./strings-static ]; then
+-        printn "can't exec ./strings-static, "
++      if [ ! -x ${TOOLS_PATH}/strings-static ]; then
++        printn "can't exec strings-static, "
+         return ${NOT_TESTED}
+       fi
+ 
+       if [ "${EXPERT}" = "t" ]; then
+-          expertmode_output "./strings-static -a ${CMD}"
++          expertmode_output "${TOOLS_PATH}/strings-static -a ${CMD}"
+           return 5
+       fi
+ 
+       ### strings must be a statically linked binary.
+-      if ./strings-static -a ${CMD} > /dev/null 2>&1
++      if ${TOOLS_PATH}/strings-static -a ${CMD} > /dev/null 2>&1
+       then
+          STATUS=${INFECTED}
+       fi
+@@ -2604,7 +2613,7 @@
+     SSHD2_INFECTED_LABEL="check_global_passwd|panasonic|satori|vejeta|\.ark|/hash\.zk"
+     getCMD 'sshd'
+ 
+-    if [ -s ${CMD} ]; then
++    if [ ! -s ${CMD} ]; then
+        return ${NOT_FOUND}
+     fi
+ 
+@@ -2919,11 +2928,11 @@
+ #
+ # NETSTAT OR SS
+ #
+-_chk_netstat_or_ss() 
++_chk_netstat_or_ss()
+ {
+-    netstat="netstat"  
++    netstat="netstat"
+     CMD=`loc ss ss $pth`
+-    [ ${?} -eq 0 ] && netstat="ss"  
++    [ ${?} -eq 0 ] && netstat="ss"
+ }
+ 
+ for cmd in ${LIST}
+@@ -2962,3 +2971,4 @@
+ done
+ 
+ ### chkrootkit ends here.
++
