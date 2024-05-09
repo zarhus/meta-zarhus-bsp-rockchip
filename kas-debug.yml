@@ -7,3 +7,11 @@ distro: zarhus-distro
 machine: zarhus-machine
 target:
   - zarhus-base-image-debug
+
+repos:
+  meta-arm:
+    url: https://git.yoctoproject.org/meta-arm
+    refspec: 8aa8a1f17f5b64bc691544f989f04fc83df98adb
+    layers:
+      meta-arm:
+      meta-arm-toolchain:
