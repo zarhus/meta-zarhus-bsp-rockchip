@@ -18,4 +18,4 @@ SRC_URI:append = " \
   file://enable-stackprotector.cfg \
 "
 
-COMPATIBLE_MACHINE:zarhus-machine = "zarhus-machine"
+COMPATIBLE_MACHINE:zarhus-machine-cm3 = "zarhus-machine-cm3"
