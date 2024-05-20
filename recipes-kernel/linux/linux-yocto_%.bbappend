@@ -15,7 +15,6 @@ SRC_URI:append = " \
   file://disable-nfs.cfg \
   file://enable-cmdline-bool.cfg \
   file://enable-debug-stackoverflow.cfg \
-  file://enable-stackprotector.cfg \
 "
 
 COMPATIBLE_MACHINE:zarhus-machine-cm3 = "zarhus-machine-cm3"
